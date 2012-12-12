@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Puppet-keepalived by arioch</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Puppet-keepalived</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/arioch/puppet-keepalived">View the Project on GitHub <small>arioch/puppet-keepalived</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/arioch/puppet-keepalived/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/arioch/puppet-keepalived/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/arioch/puppet-keepalived">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Puppet Keepalived</h1>
+
+<h2>Requirements</h2>
+
+<ul>
+<li><a href="https://github.com/ripienaar/puppet-concat">concat module</a></li>
+</ul><h2>Tested on...</h2>
+
+<ul>
+<li>Debian 6 (Squeeze)</li>
+</ul><h2>Example usage</h2>
+
+<h3>Basic IP-based VRRP failover</h3>
+
+<p>This configuration will fail-over when:</p>
+
+<p>a. Master node is unavailable</p>
+
+<pre><code>node /node01/ {
+  include keepalived
+
+    keepalived::vrrp::instance { 'VI_50':
+
+    interface         =&gt; 'eth1',
+    state             =&gt; 'MASTER',
+    virtual_router_id =&gt; '50',
+    priority          =&gt; '101',
+    auth_type         =&gt; 'PASS',
+    auth_pass         =&gt; 'secret',
+    virtual_ipaddress =&gt; '10.0.0.1/29',
+  }    
+}
+
+node /node02/ {
+  include keepalived
+
+  keepalived::vrrp::instance { 'VI_50':
+    interface         =&gt; 'eth1',
+    state             =&gt; 'BACKUP',
+    virtual_router_id =&gt; '50',
+    priority          =&gt; '100',
+    auth_type         =&gt; 'PASS',
+    auth_pass         =&gt; 'secret',
+    virtual_ipaddress =&gt; '10.0.0.1/29',
+  }    
+}
+</code></pre>
+
+<h3>Detect application level failure</h3>
+
+<p>This configuration will fail-over when:</p>
+
+<p>a. NGinX daemon is not running<br>
+b. Master node is unavailable</p>
+
+<pre><code>node /node01/ {
+  include keepalived
+
+  keepalived::vrrp::script { 'check_nginx':
+    script =&gt; '/usr/bin/killall -0 nginx',
+  }
+
+  keepalived::vrrp::instance { 'VI_50':
+    interface         =&gt; 'eth1',
+    state             =&gt; 'MASTER',
+    virtual_router_id =&gt; '50',
+    priority          =&gt; '101',
+    auth_type         =&gt; 'PASS',
+    auth_pass         =&gt; 'secret',
+    virtual_ipaddress =&gt; '10.0.0.1/29',
+    track_script      =&gt; 'check_nginx',
+  }    
+}
+
+node /node02/ {
+  include keepalived
+
+  keepalived::vrrp::script { 'check_nginx':
+    script =&gt; '/usr/bin/killall -0 nginx',
+  }
+
+  keepalived::vrrp::instance { 'VI_50':
+    interface         =&gt; 'eth1',
+    state             =&gt; 'BACKUP',
+    virtual_router_id =&gt; '50',
+    priority          =&gt; '100',
+    auth_type         =&gt; 'PASS',
+    auth_pass         =&gt; 'secret',
+    virtual_ipaddress =&gt; '10.0.0.1/29',
+    track_script      =&gt; 'check_nginx',
+  }    
+}
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/arioch">arioch</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
