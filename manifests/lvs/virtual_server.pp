@@ -1,4 +1,4 @@
-# == Define: keepalived::vrrp::virtual_server
+# == Define: keepalived::lvs::virtual_server
 #
 # Configure a Linux Virtual Server with keepalived
 #
@@ -22,6 +22,9 @@
 #
 # [*delay_loop*]
 #   Default: not set.
+#
+# [*protocol*]
+#   Default: TCP
 #
 # [*lb_kind*]
 #   Must be one of NAT, TUN, DR.
@@ -66,11 +69,18 @@
 #     [*ip_address*]
 #     [*port*]       (if ommitted the port defaults to the VIP port)
 #
+# [*collect_exported*]
+#   Boolean. Automatically collect exported @@keepalived::lvs::real_servers
+#   with a virtual_server equal to the name/title of this resource. This allows
+#   you to easily export a real_server resource on each node in the pool.
+#   Defaults to true => collect exported real_servers
+#
 define keepalived::lvs::virtual_server (
   $ip_address,
   $port,
   $lb_algo,
   $delay_loop=undef,
+  $protocol='TCP',
   $lb_kind='NAT',
   $ha_suspend=false,
   $persistence_timeout=undef,
@@ -81,7 +91,8 @@ define keepalived::lvs::virtual_server (
   $hysteresis=undef,
   $tcp_check=undef,
   $sorry_server=undef,
-  $real_servers=undef
+  $real_servers=undef,
+  $collect_exported=true,
 ) {
 
   if ( ! is_ip_address($ip_address) ) {
@@ -92,6 +103,7 @@ define keepalived::lvs::virtual_server (
   validate_re($lb_algo, '^(rr|wrr|lc|wlc|lblc|sh|dh)$', "Invalid lb_algo: ${lb_algo}")
   if $delay_loop { validate_re($delay_loop, '^[0-9]+$', "Invalid delay_loop: ${delay_loop}") }
   validate_re($lb_kind, '^(NAT|DR|TUN)$', "Invalid lb_kind: ${lb_kind}")
+  validate_re($protocol, '^(TCP|UDP)$', "Invalid protocol: ${protocol}")
   validate_bool($ha_suspend)
   validate_bool($alpha)
   validate_bool($omega)
@@ -108,7 +120,16 @@ define keepalived::lvs::virtual_server (
   concat::fragment { "keepalived.conf_lvs_virtual_server_${name}":
     target  => "${keepalived::config_dir}/keepalived.conf",
     content => template('keepalived/lvs_virtual_server.erb'),
-    order   => 250,
+    order   => "250-${name}-000",
   }
 
+  concat::fragment { "keepalived.conf_lvs_virtual_server_${name}-footer":
+    target  => "${keepalived::config_dir}/keepalived.conf",
+    content => "}\n",
+    order   => "250-${name}",
+  }
+
+  if $collect_exported {
+    Keepalived::Lvs::Real_server <<| virtual_server == $name |>>
+  }
 }

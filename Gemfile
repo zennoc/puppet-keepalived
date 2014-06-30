@@ -15,6 +15,11 @@ gem 'facter', facterversion
 gem 'rake'
 gem 'rspec'
 gem 'puppet-lint', '>=0.3.2'
-gem 'rspec-puppet', '>=1.0.1'
+gem 'rspec-puppet', :git => 'https://github.com/rodjek/rspec-puppet.git'
 gem 'puppetlabs_spec_helper', '>=0.4.1'
+gem 'puppet-syntax'
 
+group :development do
+  gem 'guard'
+  gem 'guard-rake'
+end

@@ -3,7 +3,7 @@ group <%= name %> {
   virtual_server <%= @ip_address %> <%= port %>
 
   <%- if @delay_loop -%>
-  delay_loop <%= @delay_loop -%>
+  delay_loop <%= @delay_loop %>
   <%- end -%>
   lb_algo <%= @lb_algo %>
   <%- if @lb_kind -%>
@@ -16,7 +16,7 @@ group <%= name %> {
   ha_suspend
   <%- end -%>
   <%- if @virtualhost -%>
-  virtualhost <%= @virtualhost -%>
+  virtualhost <%= @virtualhost %>
   <%- end -%>
   <%- if @alpha -%>
   alpha
@@ -30,13 +30,13 @@ group <%= name %> {
   <%- if @hysteresis -%>
   hysteresis <%= hysteresis %>
   <%- end -%>
-  protocol TCP
+  protocol <%= @protocol %>
   <%- if @sorry_server -%>
   sorry_server <%= @sorry_server['ip_address'] %> <%= @sorry_server['port'] %>
   <%- end -%>
 
   <%- if @real_servers -%>
-    <%- @real_servers.each do |rs| -%>
+    <%- Array(@real_servers).each do |rs| -%>
       <%- rs_port = rs['port'] || @port -%>
   real_server <%= rs['ip_address'] %> <%= rs_port %> {
       <%- if @tcp_check -%>
@@ -49,4 +49,4 @@ group <%= name %> {
     <%- end -%>
 
   <%- end -%>
-}
+
