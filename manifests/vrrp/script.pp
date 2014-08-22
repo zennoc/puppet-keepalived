@@ -35,12 +35,12 @@ define keepalived::vrrp::script (
     $weight_real = 2
   } else {
     if $no_weight {
-      fail("Cannot enable no_weight and specify a weight!")
+      fail('Cannot enable no_weight and specify a weight!')
     }
   }
 
   concat::fragment { "keepalived.conf_vrrp_script_${name}":
-    target  => "${keepalived::config_dir}/keepalived.conf",
+    target  => "${::keepalived::config_dir}/keepalived.conf",
     content => template('keepalived/vrrp_script.erb'),
     order   => 02,
   }

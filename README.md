@@ -10,6 +10,7 @@
 
 ## Tested on...
 
+* Debian 7 (Wheezy)
 * Debian 6 (Squeeze)
 * RHEL 6
 
@@ -55,6 +56,7 @@ node /node02/ {
 
 ### Add floating routes
 
+```puppet
 node /node01/ {
   include keepalived
 
@@ -70,8 +72,7 @@ node /node01/ {
                            { to  => '168.168.3.0/24', via => '10.0.0.3' } ]
   }
 }
-
-
+```
 
 ### Detect application level failure
 
@@ -120,14 +121,26 @@ node /node02/ {
 }
 ```
 
-###I'd like to opt out of having the service controlled; we use another tool for that.
+### Global definitions
+
+```puppet
+class { 'keepalived::global_defs':
+  ensure                  => present,
+  notification_email      => 'no@spam.tld',
+  notification_email_from => 'no@spam.tld',
+  smtp_server             => 'localhost',
+  smtp_connect_timeout    => '60',
+  router_id               => 'your_router_instance_id',
+}
+```
+
+### Opt out of having the service managed by the module
 
 ```puppet
 class { '::keepalived':
   service_manage => false,
 }
 ```
-
 
 ## Unit testing
 
