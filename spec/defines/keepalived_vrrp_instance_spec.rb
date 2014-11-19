@@ -250,6 +250,28 @@ describe 'keepalived::vrrp::instance', :type => :define do
     }
   end
 
+  describe 'with parameter notify_script_stop' do
+    let (:title) { '_NAME_' }
+    let (:params) {
+      {
+        :notify_script_stop => '_VALUE_',
+        :virtual_ipaddress => [],
+        :interface => '',
+        :priority => '',
+        :state => '',
+        :virtual_router_id => ''
+      }
+    }
+
+    it { should create_keepalived__vrrp__instance('_NAME_') }
+    it {
+      should \
+        contain_concat__fragment('keepalived.conf_vrrp_instance__NAME_').with(
+        'content' => /notify_stop.*_VALUE_/
+      )
+    }
+  end
+
   describe 'with parameter notify_script' do
     let (:title) { '_NAME_' }
     let (:params) {
@@ -949,6 +971,76 @@ describe 'keepalived::vrrp::instance', :type => :define do
       should \
         contain_concat__fragment('keepalived.conf_vrrp_instance__NAME_').with(
         'content' => /scope _SCOPE_ to 10.0.1.0\/24 via 192.168.0.1/
+      )
+    }
+  end
+
+  describe 'with parameter unicast_source_ip' do
+    let (:title) { '_NAME_' }
+    let (:params) {
+      {
+        :unicast_source_ip => '_VALUE_',
+        :virtual_ipaddress => [],
+        :interface => '',
+        :priority => '',
+        :state => '',
+        :virtual_router_id => ''
+      }
+    }
+
+    it { should create_keepalived__vrrp__instance('_NAME_') }
+    it {
+      should \
+        contain_concat__fragment('keepalived.conf_vrrp_instance__NAME_').with(
+        'content' => /unicast_src_ip.*_VALUE_/
+      )
+    }
+  end
+
+  describe 'with unicast_peers as array containing unicast peer ip addresses' do
+    let (:title) { '_NAME_' }
+    let (:params) {
+      {
+        :interface => '',
+        :priority => '',
+        :state => '',
+        :virtual_ipaddress => [],
+        :virtual_router_id => '',
+        :unicast_peers => [ '10.0.1.0', '10.0.2.0' ],
+      }
+    }
+
+    it { should create_keepalived__vrrp__instance('_NAME_') }
+    it {
+      should \
+        contain_concat__fragment('keepalived.conf_vrrp_instance__NAME_').with(
+        'content' => /10.0.1.0/
+      )
+      should \
+        contain_concat__fragment('keepalived.conf_vrrp_instance__NAME_').with(
+        'content' => /10.0.2.0/
+      )
+    }
+  end
+  
+  describe 'with dont_track_primary' do
+    let (:title) { '_NAME_' }
+    let (:params) {
+      {
+        :interface => '',
+        :priority => '',
+        :state => '',
+        :virtual_ipaddress => [],
+        :virtual_router_id => '',
+        :dont_track_primary => true,
+      }
+    }
+
+    it { should create_keepalived__vrrp__instance('_NAME_') }
+    it {
+      should \
+        contain_concat__fragment('keepalived.conf_vrrp_instance__NAME_').with(
+        'content' => /dont_track_primary/
       )
     }
   end

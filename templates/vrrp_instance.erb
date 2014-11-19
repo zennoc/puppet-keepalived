@@ -22,6 +22,10 @@ vrrp_instance <%= @name %> {
   garp_master_refresh         <%= @garp_master_refresh %>
   <%- end -%>
 
+  <%- if @dont_track_primary -%>
+  dont_track_primary
+  <%- end -%>
+
   # notify scripts and alerts are optional
   #
   # filenames of scripts to run on transitions
@@ -39,6 +43,11 @@ vrrp_instance <%= @name %> {
   # FAULT transition
   notify_fault <%= @notify_script_fault %>
   <%- end -%>
+  <%- if @notify_script_stop -%>
+  # STOP transition
+  notify_stop <%= @notify_script_stop %>
+  <%- end -%>
+
 
   <%- if @notify_script -%>
   # for ANY state transition.
@@ -50,7 +59,7 @@ vrrp_instance <%= @name %> {
   # $1 = "GROUP"|"INSTANCE"
   # $2 = name of group or instance
   # $3 = target state of transition
-  #     ("MASTER"|"BACKUP"|"FAULT")
+  #     ("MASTER"|"BACKUP"|"FAULT"|"STOP")
   notify <%= @notify_script %>
   <%- end -%>
 
@@ -64,8 +73,9 @@ vrrp_instance <%= @name %> {
   <%- if @track_script -%>
 
   track_script {
-    <% Array(@track_script).each do |track| %><%= track %>
-    <%- end -%>
+  <%- Array(@track_script).each do |track| -%>
+    <%= track %>
+  <%- end -%>
   }
   <%- end -%>
 
@@ -127,4 +137,17 @@ vrrp_instance <%= @name %> {
   <%- end -%>
   }
   <%- end -%>
+
+  <%- if @unicast_source_ip -%>
+  unicast_src_ip <%= @unicast_source_ip %>
+  <%- end -%>
+
+  <%- if @unicast_peers -%>
+  unicast_peer {
+  <%- @unicast_peers.each do |peer| -%>
+    <%= peer %>
+  <%- end -%>
+  }
+  <%- end -%>
+
 }

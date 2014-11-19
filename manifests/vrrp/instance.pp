@@ -107,8 +107,32 @@
 # $notify_script_fault::   Define the notify fault script.
 #                          Default: undef.
 #
+# $notify_script_stop::    Define the notify stop script.
+#                          Default: undef.
+#
 # $notify_script::         Define the notify script.
 #                          Default: undef.
+#
+# $unicast_source_ip::     default IP for binding vrrpd is the primary IP
+#                          on interface. If you want to hide the location of vrrpd,
+#                          use this IP as src_addr for unicast vrrp packets.
+#                          Default: undef. 
+#
+# $unicast_peers::         Do not send VRRP adverts over VRRP multicast group.
+#                          Instead send adverts to the list of ip addresses using 
+#                          a unicast design fashion.
+#
+#                          May be specified as an array with ip addresses
+#                          Default: undef.
+#
+# $dont_track_primary      Tells keepalived to ignore VRRP interface faults.
+#                          Can be useful on setup where two routers are
+#                          connected directly to each other on the interface
+#                          used for VRRP. Without this feature the link down
+#                          caused by one router crashing would also inspire
+#                          the other router to lose (or not gain) MASTER state,
+#                          since it was also tracking link status.
+#                          Default: false.
 
 define keepalived::vrrp::instance (
   $interface,
@@ -135,7 +159,11 @@ define keepalived::vrrp::instance (
   $notify_script_master       = undef,
   $notify_script_backup       = undef,
   $notify_script_fault        = undef,
+  $notify_script_stop         = undef,
   $notify_script              = undef,
+  $unicast_source_ip          = undef,
+  $unicast_peers              = undef,
+  $dont_track_primary         = false,
 
 ) {
   concat::fragment { "keepalived.conf_vrrp_instance_${name}":
